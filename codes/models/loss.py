@@ -81,7 +81,7 @@ class PerceptualLoss(nn.Module):
         self.classifier = list(classifier.children())[0]
 
     def forward(self, output, target, criterion_points=[3]):
-        loss_f = nn.L1Loss(reduction='sum')
+        loss_f = CharbonnierLoss()
         loss_list = list()
         for c_point in criterion_points:
             loss_list.append(loss_f(*list(map(self.classifier[:c_point], [output, target]))))
