@@ -80,7 +80,7 @@ class PerceptualLoss(nn.Module):
         super(PerceptualLoss, self).__init__()
         self.classifier = list(classifier.children())[0]
 
-    def forward(self, output, target, criterion_points=[4]):
+    def forward(self, output, target, criterion_points=[3]):
         loss_f = nn.L1Loss(reduction='sum')
         loss_list = list()
         for c_point in criterion_points:
