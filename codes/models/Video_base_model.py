@@ -48,7 +48,7 @@ class VideoBaseModel(BaseModel):
                 base_loss_f = CharbonnierLoss().to(self.device)
                 percep_loss_f = PerceptualLoss().to(self.device)
                 def ensemble_loss(output, target):
-                    (1 - ratio) * base_loss_f(output, target) + ratio * percep_loss_f(output, target)
+                    return (1 - ratio) * base_loss_f(output, target) + ratio * percep_loss_f(output, target)
                 self.cri_pix = ensemble_loss
             else:
                 raise NotImplementedError('Loss type [{:s}] is not recognized.'.format(loss_type))
