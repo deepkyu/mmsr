@@ -79,6 +79,8 @@ class PerceptualLoss(nn.Module):
     def __init__(self, classifier=torchvision.models.vgg19(pretrained=True)):
         super(PerceptualLoss, self).__init__()
         self.classifier = list(classifier.children())[0]
+        for param in self.classifier.parameters():
+            param.requires_grad = False
 
     def forward(self, output, target, criterion_points=[3]):
         loss_f = CharbonnierLoss()
