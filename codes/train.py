@@ -82,7 +82,7 @@ def main():
                 from tensorboardX import SummaryWriter
             tb_logger = SummaryWriter(log_dir='../tb_logger/' + opt['name'])
         if opt['use_wandb_logger'] and 'debug' not in opt['name']:
-            wandb.init(project="mmsr", config=opt)
+            wandb.init(project="mmsr", config=opt, sync_tensorboard=True)
     else:
         util.setup_logger('base', opt['path']['log'], 'train', level=logging.INFO, screen=True)
         logger = logging.getLogger('base')
