@@ -309,6 +309,6 @@ class EDVR(nn.Module):
         if self.HR_in:
             base = x_center
         else:
-            base = F.interpolate(x_center, scale_factor=4, mode='bilinear', align_corners=False)
+            base = F.interpolate(x_center, scale_factor=2, mode='bilinear', align_corners=False)
         out += base
         return out
