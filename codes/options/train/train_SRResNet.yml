@@ -4,6 +4,7 @@
 #### general settings
 name: 001_MSRResNetx4_scratch_DIV2K
 use_tb_logger: true
+use_wandb_logger: false
 model: sr
 distortion: sr
 scale: 4

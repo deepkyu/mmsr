@@ -3,6 +3,7 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 from torch.nn.parallel import DistributedDataParallel
+import wandb
 
 
 class BaseModel():
@@ -80,6 +81,8 @@ class BaseModel():
         for key, param in state_dict.items():
             state_dict[key] = param.cpu()
         torch.save(state_dict, save_path)
+        if self.opt['use_wandb_logger']:
+            torch.save(state_dict, os.path.join(wandb.run.dir, save_filename))
 
     def load_network(self, load_path, network, strict=True):
         if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):

@@ -14,6 +14,8 @@ from utils import util
 from data import create_dataloader, create_dataset
 from models import create_model
 
+import wandb
+
 
 def init_dist(backend='nccl', **kwargs):
     """initialization for distributed training"""
@@ -79,6 +81,8 @@ def main():
                     'You are using PyTorch {}. Tensorboard will use [tensorboardX]'.format(version))
                 from tensorboardX import SummaryWriter
             tb_logger = SummaryWriter(log_dir='../tb_logger/' + opt['name'])
+        if opt['use_wandb_logger'] and 'debug' not in opt['name']:
+            wandb.init(project="mmsr", config=opt)
     else:
         util.setup_logger('base', opt['path']['log'], 'train', level=logging.INFO, screen=True)
         logger = logging.getLogger('base')
@@ -128,6 +132,7 @@ def main():
 
     #### create model
     model = create_model(opt)
+    wandb.watch(model)
 
     #### resume training
     if resume_state:
@@ -170,6 +175,9 @@ def main():
                     if opt['use_tb_logger'] and 'debug' not in opt['name']:
                         if rank <= 0:
                             tb_logger.add_scalar(k, v, current_step)
+                    if opt['use_wandb_logger'] and 'debug' not in opt['name']:
+                        if rank <= 0:
+                            wandb.log({k: v}, step=current_step)
                 if rank <= 0:
                     logger.info(message)
             #### validation
@@ -209,6 +217,8 @@ def main():
                     # tensorboard logger
                     if opt['use_tb_logger'] and 'debug' not in opt['name']:
                         tb_logger.add_scalar('psnr', avg_psnr, current_step)
+                    if opt['use_wandb_logger'] and 'debug' not in opt['name']:
+                        wandb.log({'psnr': avg_psnr}, step=current_step)
                 else:  # video restoration validation
                     if opt['dist']:
                         # multi-GPU testing
@@ -257,6 +267,9 @@ def main():
                                 tb_logger.add_scalar('psnr_avg', psnr_total_avg, current_step)
                                 for k, v in psnr_rlt_avg.items():
                                     tb_logger.add_scalar(k, v, current_step)
+                            if opt['use_wandb_logger'] and 'debug' not in opt['name']:
+                                wandb.log({'psnr_avg': psnr_total_avg}, step=current_step)
+                                wandb.log(psnr_rlt_avg, step=current_step)
                     else:
                         pbar = util.ProgressBar(len(val_loader))
                         psnr_rlt = {}  # with border and center frames
@@ -291,6 +304,9 @@ def main():
                             tb_logger.add_scalar('psnr_avg', psnr_total_avg, current_step)
                             for k, v in psnr_rlt_avg.items():
                                 tb_logger.add_scalar(k, v, current_step)
+                        if opt['use_wandb_logger'] and 'debug' not in opt['name']:
+                            wandb.log({'psnr_avg': psnr_total_avg}, step=current_step)
+                            wandb.log(psnr_rlt_avg, step=current_step)
 
             #### save models and training states
             if current_step % opt['logger']['save_checkpoint_freq'] == 0:
