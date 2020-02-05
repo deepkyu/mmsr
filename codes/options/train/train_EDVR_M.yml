@@ -1,6 +1,7 @@
 #### general settings
 name: 002_EDVR_EDVRwoTSAIni_lr4e-4_600k_REDS_LrCAR4S_fixTSA50k_new
 use_tb_logger: true
+use_wandb_logger: false
 model: video_base
 distortion: sr
 scale: 4

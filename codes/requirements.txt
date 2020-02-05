@@ -5,3 +5,4 @@ pyyaml
 tb-nightly
 future
 prefetch_generator
+wandb
