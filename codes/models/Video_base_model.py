@@ -8,6 +8,7 @@ import models.networks as networks
 import models.lr_scheduler as lr_scheduler
 from .base_model import BaseModel
 from models.loss import CharbonnierLoss
+import wandb
 
 logger = logging.getLogger('base')
 
@@ -104,6 +105,7 @@ class VideoBaseModel(BaseModel):
                 raise NotImplementedError()
 
             self.log_dict = OrderedDict()
+        wandb.watch(self.netG)
 
     def feed_data(self, data, need_GT=True):
         self.var_L = data['LQs'].to(self.device)
