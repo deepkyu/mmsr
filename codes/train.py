@@ -132,7 +132,6 @@ def main():
 
     #### create model
     model = create_model(opt)
-    wandb.watch(model)
 
     #### resume training
     if resume_state:

@@ -7,6 +7,7 @@ import models.networks as networks
 import models.lr_scheduler as lr_scheduler
 from .base_model import BaseModel
 from models.loss import GANLoss
+import wandb
 
 logger = logging.getLogger('base')
 
@@ -123,6 +124,8 @@ class SRGANModel(BaseModel):
 
         self.print_network()  # print network
         self.load()  # load G and D if needed
+        wandb.watch(self.netG)
+        wandb.watch(self.netD)
 
     def feed_data(self, data, need_GT=True):
         self.var_L = data['LQ'].to(self.device)  # LQ
