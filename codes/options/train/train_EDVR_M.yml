@@ -3,7 +3,7 @@ name: 002_EDVR_EDVRwoTSAIni_lr4e-4_600k_REDS_LrCAR4S_fixTSA50k_new
 use_tb_logger: true
 model: video_base
 distortion: sr
-scale: 4
+scale: 2
 gpu_ids: [0,1,2,3,4,5,6,7]
 
 #### datasets

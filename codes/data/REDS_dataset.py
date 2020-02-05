@@ -158,7 +158,7 @@ class REDSDataset(data.Dataset):
             img_GT = util.read_img(None, osp.join(self.GT_root, name_a, name_b + '.png'))
 
         #### get LQ images
-        LQ_size_tuple = (3, 180, 320) if self.LR_input else (3, 720, 1280)
+        LQ_size_tuple = (3, 360, 640) if self.LR_input else (3, 720, 1280)
         img_LQ_l = []
         for v in neighbor_list:
             img_LQ_path = osp.join(self.LQ_root, name_a, '{:08d}.png'.format(v))
