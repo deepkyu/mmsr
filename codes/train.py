@@ -97,6 +97,7 @@ def main():
     if rank <= 0:
         logger.info('Random seed: {}'.format(seed))
     util.set_random_seed(seed)
+    wandb.config.update({'random_seed': seed})
 
     torch.backends.cudnn.benchmark = True
     # torch.backends.cudnn.deterministic = True
