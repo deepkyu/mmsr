@@ -83,6 +83,7 @@ class BaseModel():
         torch.save(state_dict, save_path)
         if self.opt['use_wandb_logger']:
             torch.save(state_dict, os.path.join(wandb.run.dir, save_filename))
+            wandb.save(os.path.join(wandb.run.dir, save_filename))
 
     def load_network(self, load_path, network, strict=True):
         if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
@@ -106,6 +107,9 @@ class BaseModel():
         save_filename = '{}.state'.format(iter_step)
         save_path = os.path.join(self.opt['path']['training_state'], save_filename)
         torch.save(state, save_path)
+        if self.opt['use_wandb_logger']:
+            torch.save(state, os.path.join(wandb.run.dir, save_filename))
+            wandb.save(os.path.join(wandb.run.dir, save_filename))
 
     def resume_training(self, resume_state):
         """Resume the optimizers and schedulers for training"""
