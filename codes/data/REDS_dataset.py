@@ -41,7 +41,7 @@ class REDSDataset(data.Dataset):
         self.half_N_frames = opt['N_frames'] // 2
         self.GT_root, self.LQ_root = opt['dataroot_GT'], opt['dataroot_LQ']
         self.data_type = self.opt['data_type']
-        self.LR_input = False if opt['GT_size'] == opt['LQ_size'] else True  # low resolution inputs
+        self.LR_input = False if opt['GT_shape'] == opt['LQ_shape'] else True  # low resolution inputs
         #### directly load image keys
         if self.data_type == 'lmdb':
             self.paths_GT, _ = util.get_image_paths(self.data_type, opt['dataroot_GT'])
@@ -53,10 +53,6 @@ class REDSDataset(data.Dataset):
             raise ValueError(
                 'Need to create cache keys (meta_info.pkl) by running [create_lmdb.py]')
 
-        # remove the REDS4 for testing
-        self.paths_GT = [
-            v for v in self.paths_GT if v.split('_')[0] not in ['000', '011', '015', '020']
-        ]
         assert self.paths_GT, 'Error: GT path is empty.'
 
         if self.data_type == 'lmdb':
@@ -153,12 +149,12 @@ class REDSDataset(data.Dataset):
             img_GT = self._read_img_mc_BGR(self.GT_root, name_a, name_b)
             img_GT = img_GT.astype(np.float32) / 255.
         elif self.data_type == 'lmdb':
-            img_GT = util.read_img(self.GT_env, key, (3, 720, 1280))
+            img_GT = util.read_img(self.GT_env, key, tuple(self.opt['GT_shape']))
         else:
             img_GT = util.read_img(None, osp.join(self.GT_root, name_a, name_b + '.png'))
 
         #### get LQ images
-        LQ_size_tuple = (3, 360, 640) if self.LR_input else (3, 720, 1280)
+        LQ_size_tuple = tuple(self.opt['LQ_shape']) if self.LR_input else tuple(self.opt['GT_shape'])
         img_LQ_l = []
         for v in neighbor_list:
             img_LQ_path = osp.join(self.LQ_root, name_a, '{:08d}.png'.format(v))

@@ -25,6 +25,8 @@ datasets:
     batch_size: 32
     GT_size: 256
     LQ_size: 64
+    GT_shape: [3, 720, 1280]
+    LQ_shape: [3, 180, 320]
     use_flip: true
     use_rot: true
     color: RGB
