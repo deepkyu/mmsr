@@ -85,9 +85,11 @@ class BaseModel():
             torch.save(state_dict, os.path.join(wandb.run.dir, save_filename))
             wandb.save(os.path.join(wandb.run.dir, save_filename))
 
-    def load_network(self, load_path, network, strict=True):
+    def load_network(self, load_path, network, strict=True, wandb_load_run_path=None):
         if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
             network = network.module
+        if wandb_load_run_path is not None:
+            load_path = wandb.restore(load_path, run_path=wandb_load_run_path).name
         load_net = torch.load(load_path)
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():

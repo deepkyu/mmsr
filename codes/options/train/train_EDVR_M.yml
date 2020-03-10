@@ -55,6 +55,7 @@ network_G:
 
 #### path
 path:
+  wandb_load_run_path: ~
   pretrain_model_G: ../experiments/pretrained_models/EDVR_REDS_SR_M_woTSA.pth
   strict_load: false
   resume_state: ~

@@ -45,6 +45,7 @@ network_G:
 
 #### path
 path:
+  wandb_load_run_path: ~
   pretrain_model_G: ~
   strict_load: true
   resume_state: ~
