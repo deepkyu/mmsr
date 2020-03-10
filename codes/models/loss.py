@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torchvision
 
 
 class CharbonnierLoss(nn.Module):
@@ -72,3 +73,18 @@ class GradientPenaltyLoss(nn.Module):
 
         loss = ((grad_interp_norm - 1)**2).mean()
         return loss
+
+
+class PerceptualLoss(nn.Module):
+    def __init__(self, classifier=torchvision.models.vgg19(pretrained=True)):
+        super(PerceptualLoss, self).__init__()
+        self.classifier = list(classifier.children())[0]
+        for param in self.classifier.parameters():
+            param.requires_grad = False
+
+    def forward(self, output, target, criterion_points=[3]):
+        loss_f = CharbonnierLoss()
+        loss_list = list()
+        for c_point in criterion_points:
+            loss_list.append(loss_f(*list(map(self.classifier[:c_point], [output, target]))))
+        return sum(loss_list)

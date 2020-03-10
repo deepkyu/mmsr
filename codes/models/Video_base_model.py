@@ -7,7 +7,7 @@ from torch.nn.parallel import DataParallel, DistributedDataParallel
 import models.networks as networks
 import models.lr_scheduler as lr_scheduler
 from .base_model import BaseModel
-from models.loss import CharbonnierLoss
+from models.loss import CharbonnierLoss, PerceptualLoss
 import wandb
 
 logger = logging.getLogger('base')
@@ -44,6 +44,13 @@ class VideoBaseModel(BaseModel):
                 self.cri_pix = nn.MSELoss(reduction='sum').to(self.device)
             elif loss_type == 'cb':
                 self.cri_pix = CharbonnierLoss().to(self.device)
+            elif loss_type == 'percep':
+                ratio = 0.5
+                base_loss_f = CharbonnierLoss().to(self.device)
+                percep_loss_f = PerceptualLoss().to(self.device)
+                def ensemble_loss(output, target):
+                    return (1 - ratio) * base_loss_f(output, target) + ratio * percep_loss_f(output, target)
+                self.cri_pix = ensemble_loss
             else:
                 raise NotImplementedError('Loss type [{:s}] is not recognized.'.format(loss_type))
             self.l_pix_w = train_opt['pixel_weight']
