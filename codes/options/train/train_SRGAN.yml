@@ -46,6 +46,7 @@ network_D:
 
 #### path
 path:
+  wandb_load_run_path: ~
   pretrain_model_G: ../experiments/pretrained_models/MSRResNetx4.pth
   strict_load: true
   resume_state: ~
