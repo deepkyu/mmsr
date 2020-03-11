@@ -18,7 +18,8 @@ opt = option.dict_to_nonedict(opt)
 
 util.mkdirs(
     (path for key, path in opt['path'].items()
-     if not key == 'experiments_root' and 'pretrain_model' not in key and 'resume' not in key))
+     if not key == 'experiments_root' and 'pretrain_model' not in key and 'resume' not in key and
+     'wandb_load_run_path' not in key))
 util.setup_logger('base', opt['path']['log'], 'test_' + opt['name'], level=logging.INFO,
                   screen=True, tofile=True)
 logger = logging.getLogger('base')
