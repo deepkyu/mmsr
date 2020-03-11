@@ -64,7 +64,7 @@ def main():
             util.mkdir_and_rename(
                 opt['path']['experiments_root'])  # rename experiment folder if exists
             util.mkdirs((path for key, path in opt['path'].items() if not key == 'experiments_root'
-                         and 'pretrain_model' not in key and 'resume' not in key))
+                         and 'pretrain_model' not in key and 'resume' not in key and 'wandb_load_run_path' not in key))
 
         # config loggers. Before it, the log will not work
         util.setup_logger('base', opt['path']['log'], 'train_' + opt['name'], level=logging.INFO,
