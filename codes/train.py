@@ -86,7 +86,7 @@ def main():
             json_path = os.path.join(os.path.expanduser('~'), '.wandb_api_keys.json')
             if os.path.exists(json_path):
                 with open(json_path, 'r') as j:
-                    json_file = json.load(j.read())
+                    json_file = json.loads(j.read())
                     os.environ['WANDB_API_KEY'] = json_file['ryul99']
             wandb.init(project="mmsr", config=opt, sync_tensorboard=True)
     else:
