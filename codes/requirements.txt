@@ -6,4 +6,4 @@ tb-nightly
 future
 prefetch_generator
 wandb
-skimage
+scikit-image
