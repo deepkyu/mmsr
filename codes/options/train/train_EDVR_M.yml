@@ -27,6 +27,7 @@ datasets:
     LQ_size: 64
     use_flip: true
     use_rot: true
+    noise_mode: ~
     color: RGB
   val:
     name: REDS4
