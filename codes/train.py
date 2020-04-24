@@ -274,8 +274,15 @@ def main():
                                 for k, v in psnr_rlt_avg.items():
                                     tb_logger.add_scalar(k, v, current_step)
                             if opt['use_wandb_logger'] and 'debug' not in opt['name']:
+                                lq_img, rlt_img, gt_img = map(util.tensor2img,
+                                                              [visuals['LQ'], visuals['rlt'], visuals['GT']])
                                 wandb.log({'psnr_avg': psnr_total_avg}, step=current_step)
                                 wandb.log(psnr_rlt_avg, step=current_step)
+                                wandb.log({'Validation Image': [
+                                    wandb.Image(lq_img, caption='LQ'),
+                                    wandb.Image(rlt_img, caption='output'),
+                                    wandb.Image(gt_img, caption='GT'),
+                                ]}, step=current_step)
                     else:
                         pbar = util.ProgressBar(len(val_loader))
                         psnr_rlt = {}  # with border and center frames
@@ -311,8 +318,15 @@ def main():
                             for k, v in psnr_rlt_avg.items():
                                 tb_logger.add_scalar(k, v, current_step)
                         if opt['use_wandb_logger'] and 'debug' not in opt['name']:
+                            lq_img, rlt_img, gt_img = map(util.tensor2img,
+                                                          [visuals['LQ'], visuals['rlt'], visuals['GT']])
                             wandb.log({'psnr_avg': psnr_total_avg}, step=current_step)
                             wandb.log(psnr_rlt_avg, step=current_step)
+                            wandb.log({'Validation Image': [
+                                wandb.Image(lq_img, caption='LQ'),
+                                wandb.Image(rlt_img, caption='output'),
+                                wandb.Image(gt_img, caption='GT'),
+                            ]}, step=current_step)
 
             #### save models and training states
             if current_step % opt['logger']['save_checkpoint_freq'] == 0:
