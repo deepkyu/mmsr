@@ -12,6 +12,7 @@ import lmdb
 import torch
 import torch.utils.data as data
 import data.util as util
+import skimage
 try:
     import mc  # import memcached
 except ImportError:
@@ -176,6 +177,12 @@ class REDSDataset(data.Dataset):
 
         if self.opt['phase'] == 'train':
             C, H, W = LQ_size_tuple  # LQ size
+
+            # add noise
+            noise_mode = self.opt['noise_mode']
+            if noise_mode is not None:
+                img_LQ_l = [skimage.util.random_noise(v, mode=noise_mode) for v in img_LQ_l]
+
             # randomly crop
             if self.LR_input:
                 LQ_size = GT_size // scale
