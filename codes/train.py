@@ -279,9 +279,9 @@ def main():
                                 wandb.log({'psnr_avg': psnr_total_avg}, step=current_step)
                                 wandb.log(psnr_rlt_avg, step=current_step)
                                 wandb.log({'Validation Image': [
-                                    wandb.Image(lq_img, caption='LQ'),
-                                    wandb.Image(rlt_img, caption='output'),
-                                    wandb.Image(gt_img, caption='GT'),
+                                    wandb.Image(lq_img[:, :, [2, 1, 0]], caption='LQ'),
+                                    wandb.Image(rlt_img[:, :, [2, 1, 0]], caption='output'),
+                                    wandb.Image(gt_img[:, :, [2, 1, 0]], caption='GT'),
                                 ]}, step=current_step)
                     else:
                         pbar = util.ProgressBar(len(val_loader))
@@ -323,9 +323,9 @@ def main():
                             wandb.log({'psnr_avg': psnr_total_avg}, step=current_step)
                             wandb.log(psnr_rlt_avg, step=current_step)
                             wandb.log({'Validation Image': [
-                                wandb.Image(lq_img, caption='LQ'),
-                                wandb.Image(rlt_img, caption='output'),
-                                wandb.Image(gt_img, caption='GT'),
+                                wandb.Image(lq_img[:, :, [2, 1, 0]], caption='LQ'),
+                                wandb.Image(rlt_img[:, :, [2, 1, 0]], caption='output'),
+                                wandb.Image(gt_img[:, :, [2, 1, 0]], caption='GT'),
                             ]}, step=current_step)
 
             #### save models and training states
