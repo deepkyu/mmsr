@@ -179,9 +179,9 @@ class REDSDataset(data.Dataset):
             C, H, W = LQ_size_tuple  # LQ size
 
             # add noise
-            noise_mode = self.opt['noise_mode']
-            if noise_mode is not None:
-                img_LQ_l = [skimage.util.random_noise(v, mode=noise_mode) for v in img_LQ_l]
+            # noise_mode = self.opt['noise_mode']
+            # if noise_mode is not None:
+            #     img_LQ_l = [skimage.util.random_noise(v, mode=noise_mode) for v in img_LQ_l]
 
             # randomly crop
             if self.LR_input:
