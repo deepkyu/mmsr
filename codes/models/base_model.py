@@ -81,7 +81,7 @@ class BaseModel():
         for key, param in state_dict.items():
             state_dict[key] = param.cpu()
         torch.save(state_dict, save_path)
-        if self.opt['use_wandb_logger']:
+        if self.opt['use_wandb_logger'] and 'debug' not in self.opt['name']:
             torch.save(state_dict, os.path.join(wandb.run.dir, save_filename))
             wandb.save(os.path.join(wandb.run.dir, save_filename))
 
@@ -109,7 +109,7 @@ class BaseModel():
         save_filename = '{}.state'.format(iter_step)
         save_path = os.path.join(self.opt['path']['training_state'], save_filename)
         torch.save(state, save_path)
-        if self.opt['use_wandb_logger']:
+        if self.opt['use_wandb_logger'] and 'debug' not in self.opt['name']:
             torch.save(state, os.path.join(wandb.run.dir, save_filename))
             wandb.save(os.path.join(wandb.run.dir, save_filename))
 
