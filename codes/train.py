@@ -102,7 +102,8 @@ def main():
         seed = random.randint(1, 10000)
     if rank <= 0:
         logger.info('Random seed: {}'.format(seed))
-        wandb.config.update({'random_seed': seed})
+        if opt['use_wandb_logger'] and 'debug' not in opt['name']:
+            wandb.config.update({'random_seed': seed})
     util.set_random_seed(seed)
 
     torch.backends.cudnn.benchmark = True
