@@ -124,8 +124,9 @@ class SRGANModel(BaseModel):
 
         self.print_network()  # print network
         self.load()  # load G and D if needed
-        wandb.watch(self.netG)
-        wandb.watch(self.netD)
+        if self.opt['use_wandb_logger'] and 'debug' not in self.opt['name']:
+            wandb.watch(self.netG)
+            wandb.watch(self.netD)
 
     def feed_data(self, data, need_GT=True):
         self.var_L = data['LQ'].to(self.device)  # LQ
