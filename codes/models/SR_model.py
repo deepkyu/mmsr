@@ -81,7 +81,8 @@ class SRModel(BaseModel):
                 raise NotImplementedError('MultiStepLR learning rate scheme is enough.')
 
             self.log_dict = OrderedDict()
-        wandb.watch(self.netG)
+        if self.opt['use_wandb_logger'] and 'debug' not in self.opt['name']:
+            wandb.watch(self.netG)
 
     def feed_data(self, data, need_GT=True):
         self.var_L = data['LQ'].to(self.device)  # LQ
