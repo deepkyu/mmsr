@@ -166,7 +166,7 @@ def main():
             model.update_learning_rate(current_step, warmup_iter=opt['train']['warmup_iter'])
 
             #### training
-            model.feed_data(train_data)
+            model.feed_data(train_data, noise_mode=opt['train']['noise_mode'])
             model.optimize_parameters(current_step)
 
             #### log

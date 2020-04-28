@@ -9,6 +9,7 @@ import models.lr_scheduler as lr_scheduler
 from .base_model import BaseModel
 from models.loss import CharbonnierLoss
 import wandb
+from utils import util
 
 logger = logging.getLogger('base')
 
@@ -84,10 +85,15 @@ class SRModel(BaseModel):
         if self.opt['use_wandb_logger'] and 'debug' not in self.opt['name']:
             wandb.watch(self.netG)
 
-    def feed_data(self, data, need_GT=True):
+    def feed_data(self, data, need_GT=True, noise_mode=None):
         self.var_L = data['LQ'].to(self.device)  # LQ
         if need_GT:
             self.real_H = data['GT'].to(self.device)  # GT
+        if noise_mode is not None:
+            if noise_mode.lower() == 'poisson':
+                self.var_L = util.add_poisson_noise(self.var_L)
+            else:
+                raise NotImplementedError
 
     def optimize_parameters(self, step):
         self.optimizer_G.zero_grad()
