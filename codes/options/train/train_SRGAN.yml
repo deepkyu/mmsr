@@ -24,6 +24,8 @@ datasets:
     GT_size: 128
     use_flip: true
     use_rot: true
+    noise_mode: ~
+    noise_rate: 0.3
     color: RGB
   val:
     name: val_set14
