@@ -109,11 +109,11 @@ class VideoBaseModel(BaseModel):
         if self.opt['use_wandb_logger'] and 'debug' not in self.opt['name']:
             wandb.watch(self.netG)
 
-    def feed_data(self, data, need_GT=True, noise_mode=None):
+    def feed_data(self, data, need_GT=True, noise_mode=None, noise_rate=0.0):
         self.var_L = data['LQs'].to(self.device)
         if need_GT:
             self.real_H = data['GT'].to(self.device)
-        if noise_mode is not None:
+        if noise_mode is not None and torch.rand(1) < noise_rate:
             if noise_mode.lower() == 'poisson':
                 self.var_L = util.add_poisson_noise(self.var_L)
             else:
