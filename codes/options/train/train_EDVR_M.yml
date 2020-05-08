@@ -30,6 +30,7 @@ datasets:
     use_flip: true
     use_rot: true
     noise_mode: ~
+    noise_rate: 0.3
     color: RGB
   val:
     name: REDS4
