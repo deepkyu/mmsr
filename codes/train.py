@@ -200,7 +200,7 @@ def main():
                         img_dir = os.path.join(opt['path']['val_images'], img_name)
                         util.mkdir(img_dir)
 
-                        model.feed_data(val_data)
+                        model.feed_data(val_data, noise_mode=opt['val']['noise_mode'], noise_rate=opt['val']['noise_rate'])
                         model.test()
 
                         visuals = model.get_current_visuals()
@@ -243,7 +243,7 @@ def main():
                                 psnr_rlt[folder] = torch.zeros(max_idx, dtype=torch.float32,
                                                                device='cuda')
                             # tmp = torch.zeros(max_idx, dtype=torch.float32, device='cuda')
-                            model.feed_data(val_data)
+                            model.feed_data(val_data, noise_mode=opt['val']['noise_mode'], noise_rate=opt['val']['noise_rate'])
                             model.test()
                             visuals = model.get_current_visuals()
                             rlt_img = util.tensor2img(visuals['rlt'])  # uint8
@@ -296,7 +296,7 @@ def main():
                             if psnr_rlt.get(folder, None) is None:
                                 psnr_rlt[folder] = []
 
-                            model.feed_data(val_data)
+                            model.feed_data(val_data, noise_mode=opt['val']['noise_mode'], noise_rate=opt['val']['noise_rate'])
                             model.test()
                             visuals = model.get_current_visuals()
                             rlt_img = util.tensor2img(visuals['rlt'])  # uint8

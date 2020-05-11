@@ -29,6 +29,8 @@ datasets:
     mode: LQGT
     dataroot_GT: ../datasets/val_set14/Set14
     dataroot_LQ: ../datasets/val_set14/Set14_bicLRx4
+    noise_mode: ~
+    noise_rate: 0.3
 
 #### network structures
 network_G:

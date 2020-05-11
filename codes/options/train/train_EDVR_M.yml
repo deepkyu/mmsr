@@ -40,6 +40,8 @@ datasets:
     cache_data: True
     N_frames: 5
     padding: new_info
+    noise_mode: ~
+    noise_rate: 0.3
 
 #### network structures
 network_G:
