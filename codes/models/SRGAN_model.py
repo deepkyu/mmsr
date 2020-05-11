@@ -136,10 +136,7 @@ class SRGANModel(BaseModel):
             input_ref = data['ref'] if 'ref' in data else data['GT']
             self.var_ref = input_ref.to(self.device)
         if noise_mode is not None and torch.rand(1) < noise_rate:
-            if noise_mode.lower() == 'poisson':
-                self.var_L = util.add_poisson_noise(self.var_L)
-            else:
-                raise NotImplementedError
+            self.var_L = util.add_noise(self.var_L, noise_mode=noise_mode)
 
     def optimize_parameters(self, step):
         # G

@@ -218,29 +218,38 @@ def flipx4_forward(model, inp):
     return output_f / 4
 
 
-def add_poisson_noise(image):
+def add_noise(image, noise_mode=''):
     """
     ref: https://github.com/scikit-image/scikit-image/blob/master/skimage/util/noise.py#L8
     :param image:
-    :return poisson-noised image:
+    :return noisy image:
     """
-    if torch.min(image) < 0:
-        low_clip = -1.
+    noise_mode = noise_mode.lower()
+    if noise_mode == 'gaussian':
+        mean = torch.tensor([]).new_full(image.shape, 0.0)
+        var = torch.tensor([]).new_full(image.shape, 0.01)
+        noise_map = torch.normal(mean, var ** 0.5)
+        out = image + noise_map
+    elif noise_mode == 'poisson':
+        if torch.min(image) < 0:
+            low_clip = -1.
+        else:
+            low_clip = 0.
+        # Determine unique values in image & calculate the next power of two
+        vals = torch.tensor(len(torch.unique(image)) * 1.)
+        vals = 2 ** torch.ceil(torch.log2(vals))
+        # Ensure image is exclusively positive
+        if low_clip == -1.:
+            old_max = torch.max(image)
+            image = (image + 1.) / (old_max + 1.)
+        # Generating noise for each unique value in image.
+        out = torch.poisson(image * vals) / float(vals)
+        # Return image to original range if input was signed
+        if low_clip == -1.:
+            out = out * (old_max + 1.) - 1.
+        out = torch.clamp(out, low_clip, 1.0)
     else:
-        low_clip = 0.
-    # Determine unique values in image & calculate the next power of two
-    vals = torch.tensor(len(torch.unique(image)) * 1.)
-    vals = 2 ** torch.ceil(torch.log2(vals))
-    # Ensure image is exclusively positive
-    if low_clip == -1.:
-        old_max = torch.max(image)
-        image = (image + 1.) / (old_max + 1.)
-    # Generating noise for each unique value in image.
-    out = torch.poisson(image * vals) / float(vals)
-    # Return image to original range if input was signed
-    if low_clip == -1.:
-        out = out * (old_max + 1.) - 1.
-    out = torch.clamp(out, low_clip, 1.0)
+        raise NotImplementedError
     return out
 
 
