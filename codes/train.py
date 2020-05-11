@@ -166,7 +166,8 @@ def main():
             model.update_learning_rate(current_step, warmup_iter=opt['train']['warmup_iter'])
 
             #### training
-            model.feed_data(train_data, noise_mode=opt['train']['noise_mode'], noise_rate=opt['train']['noise_rate'])
+            model.feed_data(train_data, noise_mode=opt['datasets']['train']['noise_mode'],
+                            noise_rate=opt['datasets']['train']['noise_rate'])
             model.optimize_parameters(current_step)
 
             #### log
@@ -200,7 +201,8 @@ def main():
                         img_dir = os.path.join(opt['path']['val_images'], img_name)
                         util.mkdir(img_dir)
 
-                        model.feed_data(val_data, noise_mode=opt['val']['noise_mode'], noise_rate=opt['val']['noise_rate'])
+                        model.feed_data(val_data, noise_mode=opt['datasets']['val']['noise_mode'],
+                                        noise_rate=opt['datasets']['val']['noise_rate'])
                         model.test()
 
                         visuals = model.get_current_visuals()
@@ -243,7 +245,8 @@ def main():
                                 psnr_rlt[folder] = torch.zeros(max_idx, dtype=torch.float32,
                                                                device='cuda')
                             # tmp = torch.zeros(max_idx, dtype=torch.float32, device='cuda')
-                            model.feed_data(val_data, noise_mode=opt['val']['noise_mode'], noise_rate=opt['val']['noise_rate'])
+                            model.feed_data(val_data, noise_mode=opt['datasets']['val']['noise_mode'],
+                                            noise_rate=opt['datasets']['val']['noise_rate'])
                             model.test()
                             visuals = model.get_current_visuals()
                             rlt_img = util.tensor2img(visuals['rlt'])  # uint8
@@ -296,7 +299,8 @@ def main():
                             if psnr_rlt.get(folder, None) is None:
                                 psnr_rlt[folder] = []
 
-                            model.feed_data(val_data, noise_mode=opt['val']['noise_mode'], noise_rate=opt['val']['noise_rate'])
+                            model.feed_data(val_data, noise_mode=opt['datasets']['val']['noise_mode'],
+                                            noise_rate=opt['datasets']['val']['noise_rate'])
                             model.test()
                             visuals = model.get_current_visuals()
                             rlt_img = util.tensor2img(visuals['rlt'])  # uint8
