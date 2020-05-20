@@ -31,7 +31,7 @@ class EDVRWrapper():
         _ = map(lambda d: setattr(self.network_conf, d[0], d[1]), self.network_conf.items())
 
     def __call__(self, input_path, output_path):
-        os.environ['CUDA_VISIBLE_DEVICES'] = self.CUDA_VISIBLE_DEVICES
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.CUDA_VISIBLE_DEVICES)
 
         model = EDVR_arch.EDVR(**self.network_conf)
 
@@ -68,7 +68,8 @@ def main():
     parser.add_argument('-o', '--output', type=str, default=None,
                         help="path to output video file")
     args = parser.parse_args()
-    conf = yaml.load(args.config, Loader=yaml.Loader)
+    with open(args.config) as f:
+        conf = yaml.load(f, Loader=yaml.Loader)
     wrapper = EDVRWrapper(**conf)
     if args.output is None:
         dir_, base = osp.split(args.input)
