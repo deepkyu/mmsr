@@ -27,8 +27,10 @@ class EDVRWrapper():
             'HR_in': False,
             'w_TSA': True,
         }
-        _ = map(lambda d: setattr(self, d[0], d[1]), conf.items())
-        _ = map(lambda d: setattr(self.network_conf, d[0], d[1]), self.network_conf.items())
+        for k, v in conf.items():
+            setattr(self, k, v)
+        for k, v in self.network_conf.items():
+            setattr(self.network_conf, k, v)
 
     def __call__(self, input_path, output_path):
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.CUDA_VISIBLE_DEVICES)
@@ -41,8 +43,8 @@ class EDVRWrapper():
         model = model.to(self.device)
 
         # read LQ images
-        imgs_LQ, _, info = torchvision.io.read_video(input_path) # imgs_LQ: Tensor[T,H,W,C]
-        imgs_LQ = imgs_LQ.transpose(1,3).transpose(2,3) # imgs_LQ: Tensor[T,C,H,W]
+        imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
+        imgs_LQ = imgs_LQ.transpose(1, 3).transpose(2, 3)  # imgs_LQ: Tensor[T,C,H,W]
         max_idx = imgs_LQ.shape[0]
         input_tensor = []
 
@@ -51,11 +53,11 @@ class EDVRWrapper():
             select_idx = data_util.index_generation(img_idx, max_idx, self.network_conf.nframes, padding=self.padding)
             imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx))
             input_tensor.append(imgs_in)
-        input_tensor = torch.stack(input_tensor, dim=0).to(self.device) # input_tensor: Tensor[T,nframes,C,H,W]
-        output = model(input_tensor) * 255.0 # output: Tensor[T,1,C,H,W]
+        input_tensor = torch.stack(input_tensor, dim=0).to(self.device)  # input_tensor: Tensor[T,nframes,C,H,W]
+        output = model(input_tensor) * 255.0  # output: Tensor[T,1,C,H,W]
 
         # write video
-        output = output.unsqueeze().type(torch.uint8).transpose(1,3).transpose(2,3) # output: Tensor[T,W,H,C]
+        output = output.unsqueeze().type(torch.uint8).transpose(1, 3).transpose(2, 3)  # output: Tensor[T,W,H,C]
         torchvision.io.write_video(output_path, output, fps=info['video_fps'])
 
 
