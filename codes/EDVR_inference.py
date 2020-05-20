@@ -41,21 +41,22 @@ class EDVRWrapper():
         model = model.to(self.device)
 
         # read LQ images
-        imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
+        imgs_LQ, _, info = torchvision.io.read_video(input_path) / 255.0  # imgs_LQ: Tensor[T,H,W,C]
         imgs_LQ = imgs_LQ.transpose(1, 3).transpose(2, 3)  # imgs_LQ: Tensor[T,C,H,W]
         max_idx = imgs_LQ.shape[0]
-        input_tensor = []
+        output_tensor = []
 
         # process each image
         for img_idx in range(max_idx):
             select_idx = data_util.index_generation(img_idx, max_idx, self.network_conf['nframes'], padding=self.padding)
-            imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx))
-            input_tensor.append(imgs_in)
-        input_tensor = torch.stack(input_tensor, dim=0).to(self.device)  # input_tensor: Tensor[T,nframes,C,H,W]
-        output = model(input_tensor) * 255.0  # output: Tensor[T,1,C,H,W]
+            # imgs_in: Tensor[1,nframes,C,H,W]
+            imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx)).unsqueeze(0).to(self.device)
+            output = model(imgs_in) * 255.0  # output: Tensor[1,1,C,H,W]
+            output_tensor.append(output)
+        output_tensor = torch.stack(output_tensor, dim=0)  # output_tensor: Tensor[T,1,C,H,W]
 
         # write video
-        output = output.unsqueeze().type(torch.uint8).transpose(1, 3).transpose(2, 3)  # output: Tensor[T,W,H,C]
+        output = output_tensor.unsqueeze().type(torch.uint8).transpose(1, 3).transpose(2, 3)  # output: Tensor[T,H,W,C]
         torchvision.io.write_video(output_path, output, fps=info['video_fps'])
 
 
