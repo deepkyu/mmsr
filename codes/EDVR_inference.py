@@ -41,8 +41,8 @@ class EDVRWrapper():
         model = model.to(self.device)
 
         # read LQ images
-        imgs_LQ, _, info = torchvision.io.read_video(input_path) / 255.0  # imgs_LQ: Tensor[T,H,W,C]
-        imgs_LQ = imgs_LQ.transpose(1, 3).transpose(2, 3)  # imgs_LQ: Tensor[T,C,H,W]
+        imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
+        imgs_LQ = imgs_LQ.transpose(1, 3).transpose(2, 3) / 255.0  # imgs_LQ: Tensor[T,C,H,W]
         max_idx = imgs_LQ.shape[0]
         output_tensor = []
 
