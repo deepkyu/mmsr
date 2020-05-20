@@ -7,3 +7,4 @@ future
 prefetch_generator
 wandb
 scikit-image
+av
