@@ -33,31 +33,33 @@ class EDVRWrapper():
     def __call__(self, input_path, output_path):
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.CUDA_VISIBLE_DEVICES)
 
-        model = EDVR_arch.EDVR(**self.network_conf)
+        with torch.no_grad():
+            model = EDVR_arch.EDVR(**self.network_conf)
 
-        # set up the models
-        model.load_state_dict(torch.load(self.ckpt_path), strict=True)
-        model.eval()
-        model = model.to(self.device)
+            # set up the models
+            model.load_state_dict(torch.load(self.ckpt_path), strict=True)
+            model.eval()
+            model = model.to(self.device)
 
-        # read LQ images
-        imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
-        imgs_LQ = imgs_LQ.transpose(1, 3).transpose(2, 3) / 255.0  # imgs_LQ: Tensor[T,C,H,W]
-        max_idx = imgs_LQ.shape[0]
-        output_tensor = []
+            # read LQ images
+            imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
+            imgs_LQ = imgs_LQ.transpose(1, 3).transpose(2, 3) / 255.0  # imgs_LQ: Tensor[T,C,H,W]
+            max_idx = imgs_LQ.shape[0]
+            output_tensor = []
 
-        # process each image
-        for img_idx in range(max_idx):
-            select_idx = data_util.index_generation(img_idx, max_idx, self.network_conf['nframes'], padding=self.padding)
-            # imgs_in: Tensor[1,nframes,C,H,W]
-            imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx)).unsqueeze(0).to(self.device)
-            output = model(imgs_in) * 255.0  # output: Tensor[1,1,C,H,W]
-            output_tensor.append(output.to('cpu'))
-        output_tensor = torch.stack(output_tensor, dim=0)  # output_tensor: Tensor[T,1,C,H,W]
+            # process each image
+            for img_idx in range(max_idx):
+                select_idx = data_util.index_generation(img_idx, max_idx, self.network_conf['nframes'],
+                                                        padding=self.padding)
+                # imgs_in: Tensor[1,nframes,C,H,W]
+                imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx)).unsqueeze(0).to(self.device)
+                output = model(imgs_in) * 255.0  # output: Tensor[1,1,C,H,W]
+                output_tensor.append(output.to('cpu'))
+            output_tensor = torch.stack(output_tensor, dim=0)  # output_tensor: Tensor[T,1,C,H,W]
 
-        # write video
-        output = output_tensor.unsqueeze().type(torch.uint8).transpose(1, 3).transpose(2, 3)  # output: Tensor[T,H,W,C]
-        torchvision.io.write_video(output_path, output, fps=info['video_fps'])
+            # write video
+            output = output_tensor.unsqueeze().type(torch.uint8).transpose(1, 3).transpose(2, 3)  # output: Tensor[T,H,W,C]
+            torchvision.io.write_video(output_path, output, fps=info['video_fps'])
 
 
 def main():
