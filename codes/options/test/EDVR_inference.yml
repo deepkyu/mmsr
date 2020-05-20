@@ -1,0 +1,16 @@
+CUDA_VISIBLE_DEVICES: '0'
+# REDS4: sharp_bicubic (SR-clean), blur_bicubic (SR-blur);
+#        blur (deblur-clean), blur_comp (deblur-compression).
+mode: 'blur_bicubic'  # Vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
+ckpt_path: '../experiments/pretrained_models/EDVR_latest.pth'
+padding: 'new_info'
+save_file: true
+network_conf:
+  nf: 64
+  nframes: 5
+  groups: 8
+  front_RBs: 5
+  back_RBs: 10
+  predeblur: false
+  HR_in: false
+  w_TSA: true
