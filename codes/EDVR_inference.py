@@ -29,8 +29,6 @@ class EDVRWrapper():
         }
         for k, v in conf.items():
             setattr(self, k, v)
-        for k, v in self.network_conf.items():
-            setattr(self.network_conf, k, v)
 
     def __call__(self, input_path, output_path):
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.CUDA_VISIBLE_DEVICES)
@@ -50,7 +48,7 @@ class EDVRWrapper():
 
         # process each image
         for img_idx in range(max_idx):
-            select_idx = data_util.index_generation(img_idx, max_idx, self.network_conf.nframes, padding=self.padding)
+            select_idx = data_util.index_generation(img_idx, max_idx, self.network_conf['nframes'], padding=self.padding)
             imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx))
             input_tensor.append(imgs_in)
         input_tensor = torch.stack(input_tensor, dim=0).to(self.device)  # input_tensor: Tensor[T,nframes,C,H,W]
