@@ -52,7 +52,7 @@ class EDVRWrapper():
             # imgs_in: Tensor[1,nframes,C,H,W]
             imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx)).unsqueeze(0).to(self.device)
             output = model(imgs_in) * 255.0  # output: Tensor[1,1,C,H,W]
-            output_tensor.append(output)
+            output_tensor.append(output.to('cpu'))
         output_tensor = torch.stack(output_tensor, dim=0)  # output_tensor: Tensor[T,1,C,H,W]
 
         # write video
