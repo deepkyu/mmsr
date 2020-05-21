@@ -59,7 +59,8 @@ class EDVRWrapper():
                 if (img_idx + 1) % self.batch == 0 and len(input_batch) != 0:
                     input_tensor.append(torch.stack(input_batch, dim=0))  # Tensor[B,nframes,C,H,W]
                     input_batch = list()
-            input_tensor.append(torch.stack(input_batch, dim=0))
+            if len(input_batch) != 0:
+                input_tensor.append(torch.stack(input_batch, dim=0))
             del imgs_LQ
             for input_ in input_tensor:
                 output = model(input_.to(self.device)) * 255.0  # output: Tensor[B,1,C,H,W]
