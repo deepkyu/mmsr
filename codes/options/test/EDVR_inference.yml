@@ -10,6 +10,6 @@ network_conf:
   groups: 8
   front_RBs: 5
   back_RBs: 10
-  predeblur: false
+  predeblur: true
   HR_in: false
   w_TSA: true
