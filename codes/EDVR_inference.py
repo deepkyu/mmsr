@@ -58,7 +58,7 @@ class EDVRWrapper():
             output_tensor = torch.stack(output_tensor, dim=0)  # output_tensor: Tensor[T,1,C,H,W]
 
             # write video
-            output = output_tensor.unsqueeze().type(torch.uint8).transpose(1, 3).transpose(2, 3)  # output: Tensor[T,H,W,C]
+            output = output_tensor.squeeze().type(torch.uint8).transpose(1, 3).transpose(2, 3)  # output: Tensor[T,H,W,C]
             torchvision.io.write_video(output_path, output, fps=info['video_fps'])
 
 
