@@ -10,7 +10,7 @@ import data.util as data_util
 import models.archs.EDVR_arch as EDVR_arch
 
 
-class EDVRWrapper():
+class EDVRWrapper:
     def __init__(self, **conf):
         self.CUDA_VISIBLE_DEVICES = 0
         self.device = 'cpu' if self.CUDA_VISIBLE_DEVICES is None else 'cuda'
@@ -64,7 +64,7 @@ class EDVRWrapper():
             del imgs_LQ
             for input_ in input_tensor:
                 output = util.single_forward(model, input_.to(self.device))  # output: Tensor[B,1,C,H,W]
-                output = output.squeeze().float().to('cpu').clamp_(0, 1)  # clamp / output: Tensor[B,C,H,W]
+                output = output.squeeze(1).float().to('cpu').clamp_(0, 1)  # clamp / output: Tensor[B,C,H,W]
                 output = (output * 255.0).round()
                 output_tensor.append(output.type(torch.uint8))
 
