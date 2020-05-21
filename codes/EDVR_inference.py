@@ -63,7 +63,7 @@ class EDVRWrapper():
                 input_tensor.append(torch.stack(input_batch, dim=0))
             del imgs_LQ
             for input_ in input_tensor:
-                output = util.single_forward(input_.to(self.device))  # output: Tensor[B,1,C,H,W]
+                output = util.single_forward(model, input_.to(self.device))  # output: Tensor[B,1,C,H,W]
                 output = output.squeeze().float().to('cpu').clamp_(0, 1)  # clamp / output: Tensor[B,C,H,W]
                 output = (output * 255.0).round()
                 output_tensor.append(output.type(torch.uint8))
