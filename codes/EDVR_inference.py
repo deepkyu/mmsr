@@ -53,18 +53,19 @@ class EDVRWrapper():
             for img_idx in range(max_idx):
                 select_idx = data_util.index_generation(img_idx, max_idx, self.network_conf['nframes'],
                                                         padding=self.padding)
-                # imgs_in: Tensor[1,nframes,C,H,W]
-                imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx)).unsqueeze(0)
+                # imgs_in: Tensor[nframes,C,H,W]
+                imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx))
                 input_batch.append(imgs_in)
                 if (img_idx + 1) % self.batch == 0 and len(input_batch) != 0:
                     input_tensor.append(torch.stack(input_batch, dim=0))  # Tensor[B,nframes,C,H,W]
                     input_batch = list()
+            input_tensor.append(torch.stack(input_batch, dim=0))
             del imgs_LQ
             for input_ in input_tensor:
                 output = model(input_.to(self.device)) * 255.0  # output: Tensor[B,1,C,H,W]
                 output_tensor.append(output.to('cpu'))
 
-            output_tensor = torch.stack(output_tensor, dim=0)  # output_tensor: Tensor[T,1,C,H,W]
+            output_tensor = torch.cat(output_tensor, dim=0)  # output_tensor: Tensor[T,1,C,H,W]
 
             # write video
             output = output_tensor.squeeze().type(torch.uint8).transpose(1, 3).transpose(1, 2)  # output: Tensor[T,H,W,C]
