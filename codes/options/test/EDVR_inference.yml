@@ -1,7 +1,6 @@
 CUDA_VISIBLE_DEVICES: '0'
 # REDS4: sharp_bicubic (SR-clean), blur_bicubic (SR-blur);
 #        blur (deblur-clean), blur_comp (deblur-compression).
-mode: 'blur_bicubic'  # Vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
 ckpt_path: '../experiments/pretrained_models/EDVR_latest.pth'
 padding: 'new_info'
 batch: 8

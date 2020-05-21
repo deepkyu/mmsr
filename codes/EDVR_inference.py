@@ -13,7 +13,6 @@ class EDVRWrapper():
     def __init__(self, **conf):
         self.CUDA_VISIBLE_DEVICES = 0
         self.device = 'cpu' if self.CUDA_VISIBLE_DEVICES is None else 'cuda'
-        self.mode = 'blur_bicubic'
         self.ckpt_path = '../experiments/pretrained_models/EDVR_latest.pth'
         self.padding = 'new_info'
         self.batch = 8
