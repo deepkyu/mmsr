@@ -5,6 +5,7 @@ import torchvision
 import argparse
 import yaml
 
+import utils.util as util
 import data.util as data_util
 import models.archs.EDVR_arch as EDVR_arch
 
@@ -62,13 +63,15 @@ class EDVRWrapper():
                 input_tensor.append(torch.stack(input_batch, dim=0))
             del imgs_LQ
             for input_ in input_tensor:
-                output = model(input_.to(self.device)) * 255.0  # output: Tensor[B,1,C,H,W]
-                output_tensor.append(output.to('cpu').type(torch.uint8))
+                output = util.single_forward(input_.to(self.device))  # output: Tensor[B,1,C,H,W]
+                output = output.squeeze().float().to('cpu').clamp_(0, 1)  # clamp / output: Tensor[B,C,H,W]
+                output = (output * 255.0).round()
+                output_tensor.append(output.type(torch.uint8))
 
-            output_tensor = torch.cat(output_tensor, dim=0)  # output_tensor: Tensor[T,1,C,H,W]
+            output_tensor = torch.cat(output_tensor, dim=0)  # output_tensor: Tensor[T,C,H,W]
 
             # write video
-            output = output_tensor.squeeze().transpose(1, 3).transpose(1, 2)  # output: Tensor[T,H,W,C]
+            output = output_tensor.transpose(1, 3).transpose(1, 2)  # output: Tensor[T,H,W,C]
             torchvision.io.write_video(output_path, output, fps=info['video_fps'])
 
 
