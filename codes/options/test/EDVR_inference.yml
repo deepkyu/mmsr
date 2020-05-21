@@ -4,7 +4,7 @@ CUDA_VISIBLE_DEVICES: '0'
 mode: 'blur_bicubic'  # Vid4 | sharp_bicubic | blur_bicubic | blur | blur_comp
 ckpt_path: '../experiments/pretrained_models/EDVR_latest.pth'
 padding: 'new_info'
-save_file: true
+batch: 8
 network_conf:
   nf: 64
   nframes: 5

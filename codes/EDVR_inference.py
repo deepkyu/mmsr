@@ -16,7 +16,7 @@ class EDVRWrapper():
         self.mode = 'blur_bicubic'
         self.ckpt_path = '../experiments/pretrained_models/EDVR_latest.pth'
         self.padding = 'new_info'
-        self.save_file = True
+        self.batch = 8
         self.network_conf = {
             'nf': 64,
             'nframes': 5,
@@ -45,16 +45,25 @@ class EDVRWrapper():
             imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
             imgs_LQ = imgs_LQ.transpose(1, 3).transpose(2, 3) / 255.0  # imgs_LQ: Tensor[T,C,H,W]
             max_idx = imgs_LQ.shape[0]
-            output_tensor = []
+            input_tensor = list()
+            input_batch = list()
+            output_tensor = list()
 
             # process each image
             for img_idx in range(max_idx):
                 select_idx = data_util.index_generation(img_idx, max_idx, self.network_conf['nframes'],
                                                         padding=self.padding)
                 # imgs_in: Tensor[1,nframes,C,H,W]
-                imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx)).unsqueeze(0).to(self.device)
-                output = model(imgs_in) * 255.0  # output: Tensor[1,1,C,H,W]
+                imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx)).unsqueeze(0)
+                input_batch.append(imgs_in)
+                if (img_idx + 1) % self.batch == 0 and len(input_batch) != 0:
+                    input_tensor.append(torch.stack(input_batch, dim=0))  # Tensor[B,nframes,C,H,W]
+                    input_batch = list()
+            del imgs_LQ
+            for input_ in input_tensor:
+                output = model(input_.to(self.device)) * 255.0  # output: Tensor[B,1,C,H,W]
                 output_tensor.append(output.to('cpu'))
+
             output_tensor = torch.stack(output_tensor, dim=0)  # output_tensor: Tensor[T,1,C,H,W]
 
             # write video
