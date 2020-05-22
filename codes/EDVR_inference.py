@@ -29,23 +29,22 @@ class EDVRWrapper:
         }
         for k, v in conf.items():
             setattr(self, k, v)
+        with torch.no_grad():
+            self.model = EDVR_arch.EDVR(**self.network_conf)
+
+            # set up the models
+            self.model.load_state_dict(torch.load(self.ckpt_path), strict=True)
+            self.model.eval()
+            self.model = self.model.to(self.device)
 
     def __call__(self, input_path, output_path):
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.CUDA_VISIBLE_DEVICES)
 
         with torch.no_grad():
-            model = EDVR_arch.EDVR(**self.network_conf)
-
-            # set up the models
-            model.load_state_dict(torch.load(self.ckpt_path), strict=True)
-            model.eval()
-            model = model.to(self.device)
-
             # read LQ images
             imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
             imgs_LQ = imgs_LQ.permute(0, 3, 1, 2).contiguous() / 255.0  # imgs_LQ: Tensor[T,C,H,W]
             max_idx = imgs_LQ.shape[0]
-            input_tensor = list()
             input_batch = list()
             output_tensor = list()
 
@@ -57,16 +56,17 @@ class EDVRWrapper:
                 imgs_in = imgs_LQ.index_select(0, torch.LongTensor(select_idx))
                 input_batch.append(imgs_in)
                 if (img_idx + 1) % self.batch == 0 and len(input_batch) != 0:
-                    input_tensor.append(torch.stack(input_batch, dim=0))  # Tensor[B,nframes,C,H,W]
+                    input_tensor = torch.stack(input_batch, dim=0)  # Tensor[B,nframes,C,H,W]
+                    output = self.single_inference(input_tensor)
+                    output_tensor.append(output)
                     input_batch = list()
+                    del input_tensor
             if len(input_batch) != 0:
-                input_tensor.append(torch.stack(input_batch, dim=0))
-            del imgs_LQ
-            for input_ in input_tensor:
-                output = util.single_forward(model, input_.to(self.device))  # output: Tensor[B,1,C,H,W]
-                output = output.squeeze(1).float().to('cpu').clamp_(0, 1)  # clamp / output: Tensor[B,C,H,W]
-                output = (output * 255.0).round()
-                output_tensor.append(output.type(torch.uint8))
+                input_tensor = torch.stack(input_batch, dim=0)
+                output = self.single_inference(input_tensor)
+                output_tensor.append(output)
+                del input_batch
+                del input_tensor
 
             output_tensor = torch.cat(output_tensor, dim=0)  # output_tensor: Tensor[T,C,H,W]
 
@@ -74,6 +74,11 @@ class EDVRWrapper:
             output = output_tensor.permute(0, 2, 3, 1).contiguous()  # output: Tensor[T,H,W,C]
             torchvision.io.write_video(output_path, output, fps=info['video_fps'])
 
+    def single_inference(self, input_tensor):
+        output = util.single_forward(self.model, input_tensor.to(self.device))  # output: Tensor[B,1,C,H,W]
+        output = output.squeeze(1).float().to('cpu').clamp_(0, 1)  # clamp / output: Tensor[B,C,H,W]
+        output = (output * 255.0).round().type(torch.uint8)
+        return output
 
 def main():
     parser = argparse.ArgumentParser()
