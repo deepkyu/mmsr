@@ -67,6 +67,7 @@ class EDVRWrapper:
                 output_tensor.append(output)
                 del input_batch
                 del input_tensor
+                del imgs_LQ
 
             output_tensor = torch.cat(output_tensor, dim=0)  # output_tensor: Tensor[T,C,H,W]
 
