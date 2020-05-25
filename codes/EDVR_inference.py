@@ -14,7 +14,8 @@ import models.archs.EDVR_arch as EDVR_arch
 
 class EDVRWrapper:
     def __init__(self, **conf):
-        self.device = 'cuda:0'
+        self.CUDA_VISIBLE_DEVICES = 0
+        self.device = 'cpu' if self.CUDA_VISIBLE_DEVICES is None else 'cuda'
         self.ckpt_path = '../experiments/pretrained_models/EDVR_latest.pth'
         self.padding = 'new_info'
         self.batch = 8
@@ -32,8 +33,6 @@ class EDVRWrapper:
         }
         for k, v in conf.items():
             setattr(self, k, v)
-
-        self.device = torch.device(self.device)
         with torch.no_grad():
             self.model = EDVR_arch.EDVR(**self.network_conf)
 
@@ -43,6 +42,8 @@ class EDVRWrapper:
             self.model = self.model.to(self.device)
 
     def __call__(self, input_path, output_path):
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.CUDA_VISIBLE_DEVICES)
+
         with torch.no_grad():
             # read LQ images
             imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]

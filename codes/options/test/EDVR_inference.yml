@@ -1,4 +1,4 @@
-device: 'cuda:0'
+CUDA_VISIBLE_DEVICES: '0'
 # REDS4: sharp_bicubic (SR-clean), blur_bicubic (SR-blur);
 #        blur (deblur-clean), blur_comp (deblur-compression).
 ckpt_path: '../experiments/pretrained_models/EDVR_latest.pth'
