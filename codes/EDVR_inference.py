@@ -4,6 +4,7 @@ import torch
 import torchvision
 import argparse
 import yaml
+import tqdm
 
 import utils.util as util
 import data.util as data_util
@@ -51,7 +52,7 @@ class EDVRWrapper:
             output_tensor = list()
 
             # process each image
-            for img_idx in range(max_idx):
+            for img_idx in tqdm.tqdm(range(max_idx)):
                 select_idx = data_util.index_generation(img_idx, max_idx, self.network_conf['nframes'],
                                                         padding=self.padding)
                 # imgs_in: Tensor[nframes,C,H,W]
