@@ -17,6 +17,8 @@ class EDVRWrapper:
         self.ckpt_path = '../experiments/pretrained_models/EDVR_latest.pth'
         self.padding = 'new_info'
         self.batch = 8
+        self.split_H = 1
+        self.split_W = 1
         self.network_conf = {
             'nf': 64,
             'nframes': 5,
@@ -76,10 +78,20 @@ class EDVRWrapper:
             torchvision.io.write_video(output_path, output, fps=info['video_fps'])
 
     def single_inference(self, input_tensor):
-        output = util.single_forward(self.model, input_tensor.to(self.device))  # output: Tensor[B,1,C,H,W]
-        output = output.squeeze(1).float().to('cpu').clamp_(0, 1)  # clamp / output: Tensor[B,C,H,W]
-        output = (output * 255.0).round().type(torch.uint8)
-        return output
+        _, _, _, H, W = input_tensor.shape
+        h_outputs = list()
+        h_tensors = input_tensor.split(((H - 1) // self.split_H) + 1, dim=-2)
+        for h_tensor in h_tensors:
+            w_outputs = list()
+            split_tensors = h_tensor.split(((W - 1) // self.split_W) + 1, dim=-1)
+            for split_tensor in split_tensors:
+                output = util.single_forward(self.model, split_tensor.to(self.device))  # output: Tensor[B,1,C,H,W]
+                output = output.squeeze(1).float().to('cpu').clamp_(0, 1)  # clamp / output: Tensor[B,C,H,W]
+                output = (output * 255.0).round().type(torch.uint8)
+                w_outputs.append(output)
+            h_outputs.append(torch.cat(w_outputs, dim=-1))
+        result = torch.cat(h_outputs, dim=-2)
+        return result
 
 def main():
     parser = argparse.ArgumentParser()

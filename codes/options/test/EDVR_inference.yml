@@ -4,6 +4,8 @@ CUDA_VISIBLE_DEVICES: '0'
 ckpt_path: '../experiments/pretrained_models/EDVR_latest.pth'
 padding: 'new_info'
 batch: 8
+split_H: 1
+split_W: 1
 network_conf:
   nf: 64
   nframes: 5
