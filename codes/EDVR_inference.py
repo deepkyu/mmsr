@@ -18,8 +18,8 @@ class EDVRWrapper:
         self.ckpt_path = '../experiments/pretrained_models/EDVR_latest.pth'
         self.padding = 'new_info'
         self.batch = 8
-        self.split_H = 1
-        self.split_W = 1
+        self.split_H = 540
+        self.split_W = 960
         self.network_conf = {
             'nf': 64,
             'nframes': 5,

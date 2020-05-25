@@ -4,8 +4,8 @@ device: 'cuda:0'
 ckpt_path: '../experiments/pretrained_models/EDVR_latest.pth'
 padding: 'new_info'
 batch: 8
-split_H: 960
-split_W: 540
+split_H: 540
+split_W: 960
 network_conf:
   nf: 64
   nframes: 5
