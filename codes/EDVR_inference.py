@@ -5,6 +5,7 @@ import torchvision
 import argparse
 import yaml
 import tqdm
+import glob
 
 import utils.util as util
 import data.util as data_util
@@ -93,6 +94,17 @@ class EDVRWrapper:
         result = torch.cat(h_outputs, dim=-2)
         return result
 
+
+def get_output_path(input_path, output_path=None):
+    if output_path is None:
+        dir_, base = osp.split(input_path)
+        filename, ext = osp.splitext(base)
+        output_path = os.path.join(dir_, '{}_output{}'.format(filename, ext))
+    else:
+        output_path = output_path
+    return output_path
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, required=True,
@@ -101,17 +113,20 @@ def main():
                         help="path to input video file")
     parser.add_argument('-o', '--output', type=str, default=None,
                         help="path to output video file")
+    parser.add_argument('-I', '--input_list_path', type=str, default=None,
+                        help="path to input videos (Unix style pathname pattern expansion)")
     args = parser.parse_args()
     with open(args.config) as f:
         conf = yaml.load(f, Loader=yaml.Loader)
     wrapper = EDVRWrapper(**conf)
-    if args.output is None:
-        dir_, base = osp.split(args.input)
-        filename, ext = osp.splitext(base)
-        output_path = os.path.join(dir_, '{}_output{}'.format(filename, ext))
+    if args.input_list_path is None:
+        output_path = get_output_path(args.input, args.output)
+        wrapper(args.input, output_path)
     else:
-        output_path = args.output
-    wrapper(args.input, output_path)
+        input_path_list = glob.glob(args.input_list_path, recursive=True)
+        for input_path in input_path_list:
+            output_path = get_output_path(input_path)
+            wrapper(input_path, output_path)
 
 
 if __name__ == '__main__':
