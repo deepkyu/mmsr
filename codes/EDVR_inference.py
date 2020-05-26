@@ -69,14 +69,14 @@ class EDVRWrapper:
                 input_tensor = torch.stack(input_batch, dim=0)
                 output = self.single_inference(input_tensor)
                 output_tensor.append(output)
-                del input_batch
                 del input_tensor
-                del imgs_LQ
+            del input_batch
+            del imgs_LQ
 
             output_tensor = torch.cat(output_tensor, dim=0)  # output_tensor: Tensor[T,C,H,W]
 
             # write video
-            output = output_tensor.permute(0, 2, 3, 1).contiguous()  # output: Tensor[T,H,W,C]
+            output = output_tensor.permute(0, 2, 3, 1)  # output: Tensor[T,H,W,C]
             torchvision.io.write_video(output_path, output, fps=info['video_fps'])
 
     def single_inference(self, input_tensor):
