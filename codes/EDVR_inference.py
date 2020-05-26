@@ -33,6 +33,8 @@ class EDVRWrapper:
         }
         for k, v in conf.items():
             setattr(self, k, v)
+
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.CUDA_VISIBLE_DEVICES)
         with torch.no_grad():
             self.model = EDVR_arch.EDVR(**self.network_conf)
 
@@ -42,8 +44,6 @@ class EDVRWrapper:
             self.model = self.model.to(self.device)
 
     def __call__(self, input_path, output_path):
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.CUDA_VISIBLE_DEVICES)
-
         with torch.no_grad():
             # read LQ images
             imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
