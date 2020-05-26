@@ -3,7 +3,7 @@ CUDA_VISIBLE_DEVICES: '0'
 #        blur (deblur-clean), blur_comp (deblur-compression).
 ckpt_path: '../experiments/pretrained_models/EDVR_latest.pth'
 padding: 'new_info'
-batch: 8
+batch: 4
 split_H: 540
 split_W: 960
 network_conf:

@@ -18,7 +18,7 @@ class EDVRWrapper:
         self.device = 'cpu' if self.CUDA_VISIBLE_DEVICES is None else 'cuda'
         self.ckpt_path = '../experiments/pretrained_models/EDVR_latest.pth'
         self.padding = 'new_info'
-        self.batch = 8
+        self.batch = 4
         self.split_H = 540
         self.split_W = 960
         self.network_conf = {
