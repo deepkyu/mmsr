@@ -6,6 +6,8 @@ import argparse
 import yaml
 import tqdm
 import glob
+import cv2
+import numpy as np
 
 import utils.util as util
 import data.util as data_util
@@ -47,7 +49,7 @@ class EDVRWrapper:
         with torch.no_grad():
             # read LQ images
             imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
-            imgs_LQ = imgs_LQ.permute(0, 3, 1, 2).contiguous() / 255.0  # imgs_LQ: Tensor[T,C,H,W]
+            imgs_LQ = imgs_LQ.permute(0, 3, 1, 2).contiguous().float() / 255.0  # imgs_LQ: Tensor[T,C,H,W]
             max_idx = imgs_LQ.shape[0]
             input_batch = list()
             output_tensor = list()
@@ -77,7 +79,12 @@ class EDVRWrapper:
 
             # write video
             output = output_tensor.permute(0, 2, 3, 1)  # output: Tensor[T,H,W,C]
-            torchvision.io.write_video(output_path, output, fps=info['video_fps'])
+            video_writer = cv2.VideoWriter(
+                output_path, cv2.VideoWriter_fourcc(*'mp4v'), info['video_fps'], (output.shape[2], output.shape[1])
+            )
+            for i in range(output.shape[0]):
+                video_writer.write(output[i][:, :, [2, 1, 0]].numpy())
+            video_writer.release()
 
     def single_inference(self, input_tensor):
         h_outputs = list()
