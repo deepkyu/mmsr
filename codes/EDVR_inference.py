@@ -106,7 +106,7 @@ class EDVRWrapper:
                 output_path, cv2.VideoWriter_fourcc(*'mp4v'), video_fps, (output.shape[2], output.shape[1])
             )
             for i in range(output.shape[0]):
-                video_writer.write(output[i][:, :, [2, 1, 0]].numpy())
+                video_writer.write(output[i])
             video_writer.release()
 
     def single_inference(self, input_tensor):
