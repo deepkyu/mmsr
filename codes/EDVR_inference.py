@@ -54,6 +54,8 @@ class EDVRWrapper:
                 ret, frame = video_cap.read()
                 if ret:
                     imgs_LQ.append(torch.from_numpy(frame[:, :, [2, 1, 0]]))  # BGR -> RGB
+                else:
+                    break
             video_cap.release()
             imgs_LQ = torch.stack(imgs_LQ, dim=0)  # imgs_LQ: Tensor[T,H,W,C]
             imgs_LQ = imgs_LQ.permute(0, 3, 1, 2).contiguous().float() / 255.0  # imgs_LQ: Tensor[T,C,H,W]
