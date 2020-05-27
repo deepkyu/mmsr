@@ -1,7 +1,6 @@
 import os
 import os.path as osp
 import torch
-import torchvision
 import argparse
 import yaml
 import tqdm
@@ -48,7 +47,17 @@ class EDVRWrapper:
     def __call__(self, input_path, output_path):
         with torch.no_grad():
             # read LQ images
-            imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
+            video_cap = cv2.VideoCapture(input_path)
+            video_fps = video_cap.get(cv2.CAP_PROP_FPS)
+            imgs_LQ = list()
+            while video_cap.isOpened():
+                ret, frame = video_cap.read()
+                if ret:
+                    imgs_LQ.append(torch.from_numpy(frame[:, :, [2, 1, 0]]))  # BGR -> RGB
+                else:
+                    break
+            video_cap.release()
+            imgs_LQ = torch.stack(imgs_LQ, dim=0)  # imgs_LQ: Tensor[T,H,W,C]
             imgs_LQ = imgs_LQ.permute(0, 3, 1, 2).contiguous().float() / 255.0  # imgs_LQ: Tensor[T,C,H,W]
             _, _, height, width = imgs_LQ.shape
             imgs_LQ = imgs_LQ[:, :, :height - (height % 16), :width - (width % 16)]
@@ -82,7 +91,7 @@ class EDVRWrapper:
             # write video
             output = output_tensor.permute(0, 2, 3, 1)  # output: Tensor[T,H,W,C]
             video_writer = cv2.VideoWriter(
-                output_path, cv2.VideoWriter_fourcc(*'mp4v'), info['video_fps'], (output.shape[2], output.shape[1])
+                output_path, cv2.VideoWriter_fourcc(*'mp4v'), video_fps, (output.shape[2], output.shape[1])
             )
             for i in range(output.shape[0]):
                 video_writer.write(output[i][:, :, [2, 1, 0]].numpy())
