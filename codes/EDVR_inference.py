@@ -50,6 +50,8 @@ class EDVRWrapper:
             # read LQ images
             imgs_LQ, _, info = torchvision.io.read_video(input_path)  # imgs_LQ: Tensor[T,H,W,C]
             imgs_LQ = imgs_LQ.permute(0, 3, 1, 2).contiguous().float() / 255.0  # imgs_LQ: Tensor[T,C,H,W]
+            _, _, height, width = imgs_LQ.shape
+            imgs_LQ = imgs_LQ[:, :, :height - (height % 16), :width - (width % 16)]
             max_idx = imgs_LQ.shape[0]
             input_batch = list()
             output_tensor = list()
