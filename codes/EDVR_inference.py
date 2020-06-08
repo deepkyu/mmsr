@@ -139,20 +139,20 @@ def main():
     parser.add_argument('-c', '--config', type=str, required=True,
                         help="yaml file for config.")
     parser.add_argument('-i', '--input', type=str, required=True,
-                        help="path to input video file")
+                        help="path to input video file (Unix style pathname pattern expansion)")
     parser.add_argument('-o', '--output', type=str, default=None,
                         help="path to output video file")
-    parser.add_argument('-I', '--input_list_path', type=str, default=None,
-                        help="path to input videos (Unix style pathname pattern expansion)")
     args = parser.parse_args()
     with open(args.config) as f:
         conf = yaml.load(f, Loader=yaml.Loader)
     wrapper = EDVRWrapper(**conf)
-    if args.input_list_path is None:
-        output_path = get_output_path(args.input, args.output)
-        wrapper(args.input, output_path)
+    input_path_list = glob.glob(args.input, recursive=True)
+    if len(input_path_list) is 0:
+        raise ValueError('Input is not specified')
+    elif len(input_path_list) is 1:
+        output_path = get_output_path(input_path_list[0], args.output)
+        wrapper(input_path_list[0], output_path)
     else:
-        input_path_list = glob.glob(args.input_list_path, recursive=True)
         for input_path in input_path_list:
             output_path = get_output_path(input_path)
             wrapper(input_path, output_path)
