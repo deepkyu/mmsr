@@ -150,8 +150,8 @@ def main():
     if len(input_path_list) is 0:
         raise ValueError('Input is not specified')
     elif len(input_path_list) is 1:
-        output_path = get_output_path(args.input, args.output)
-        wrapper(args.input, output_path)
+        output_path = get_output_path(input_path_list[0], args.output)
+        wrapper(input_path_list[0], output_path)
     else:
         for input_path in input_path_list:
             output_path = get_output_path(input_path)
