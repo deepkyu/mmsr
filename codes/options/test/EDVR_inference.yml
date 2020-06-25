@@ -1,9 +1,9 @@
 CUDA_VISIBLE_DEVICES: '0'
 # REDS4: sharp_bicubic (SR-clean), blur_bicubic (SR-blur);
 #        blur (deblur-clean), blur_comp (deblur-compression).
-ckpt_path: '../experiments/pretrained_models/EDVR_latest.pth'
+ckpt_path: '/workspace/mmsr/experiments/pretrained_models/EDVR_latest.pth'
 padding: 'replicate'
-batch: 4
+batch: 1
 split_H: 540
 split_W: 960
 network_conf:

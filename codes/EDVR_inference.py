@@ -1,5 +1,7 @@
 import os
 import os.path as osp
+import sys
+
 import torch
 import argparse
 import yaml
@@ -7,17 +9,17 @@ import tqdm
 import glob
 import cv2
 import numpy as np
-
-import utils.util as util
-import data.util as data_util
-import models.archs.EDVR_arch as EDVR_arch
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+import codes.utils.util as util
+import codes.data.util as data_util
+import codes.models.archs.EDVR_arch as EDVR_arch
 
 
 class EDVRWrapper:
     def __init__(self, **conf):
         self.CUDA_VISIBLE_DEVICES = 0
         self.device = 'cpu' if self.CUDA_VISIBLE_DEVICES is None else 'cuda'
-        self.ckpt_path = '../experiments/pretrained_models/EDVR_latest.pth'
+        self.ckpt_path = '/workspace/mmsr/experiments/pretrained_models/EDVR_latest.pth'
         self.padding = 'replicate'
         self.batch = 4
         self.split_H = 540
@@ -143,6 +145,7 @@ def main():
     parser.add_argument('-o', '--output', type=str, default=None,
                         help="path to output video file")
     args = parser.parse_args()
+
     with open(args.config) as f:
         conf = yaml.load(f, Loader=yaml.Loader)
     wrapper = EDVRWrapper(**conf)
@@ -158,5 +161,24 @@ def main():
             wrapper(input_path, output_path)
 
 
-if __name__ == '__main__':
-    main()
+def makeoutput(input_path, output_path):
+
+    # FFMPEG  ()->.mp4
+
+    config = "/workspace/mmsr/codes/options/test/EDVR_inference.yml"
+    with open(config) as f:
+        conf = yaml.load(f, Loader=yaml.Loader)
+    wrapper = EDVRWrapper(**conf)
+    input_path_list = glob.glob(input_path, recursive=True)
+    if len(input_path_list) is 0:
+        raise ValueError('Input is not specified')
+    elif len(input_path_list) is 1:
+        output_path = get_output_path(input_path_list[0], output_path)
+        wrapper(input_path_list[0], output_path)
+    else:
+        for input_path in input_path_list:
+            output_path = get_output_path(input_path)
+            wrapper(input_path, output_path)
+        f.close()
+
+
