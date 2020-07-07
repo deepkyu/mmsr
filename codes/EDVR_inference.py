@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 import torch
+import torchvision
 import argparse
 import yaml
 import tqdm
@@ -48,7 +49,6 @@ class EDVRWrapper:
         with torch.no_grad():
             # read LQ images
             video_cap = cv2.VideoCapture(input_path)
-            video_fps = video_cap.get(cv2.CAP_PROP_FPS)
             imgs_LQ = list()
             while video_cap.isOpened():
                 ret, frame = video_cap.read()
@@ -58,6 +58,8 @@ class EDVRWrapper:
                 else:
                     break
             video_cap.release()
+            _, _, info = torchvision.io.read_video(input_path)
+            video_fps = info['video_fps']
             imgs_LQ = np.stack(imgs_LQ, axis=0)  # imgs_LQ: numpy[T,H,W,C]
             imgs_LQ = imgs_LQ[:, :, :, [2, 1, 0]]  # BGR -> RGB
             imgs_LQ = torch.from_numpy(
@@ -108,6 +110,8 @@ class EDVRWrapper:
             for i in range(output.shape[0]):
                 video_writer.write(output[i])
             video_writer.release()
+            os.system("ffmpeg -y -i %s -i %s -map 0:v -map 1:a %s_temp.mp4" % (output_path, input_path, output_path))
+            os.system("mv %s_temp.mp4 %s" % (output_path, output_path))
 
     def single_inference(self, input_tensor):
         h_outputs = list()
