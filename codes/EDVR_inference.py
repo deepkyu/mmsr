@@ -1,7 +1,7 @@
 import os
 import os.path as osp
 import sys
-
+import subprocess
 import torch
 import torchvision
 import argparse
@@ -112,8 +112,8 @@ class EDVRWrapper:
             for i in range(output.shape[0]):
                 video_writer.write(output[i])
             video_writer.release()
-            os.system("ffmpeg -y -i %s -i %s -map 0:v -map 1:a %s_temp.mp4" % (output_path, input_path, output_path))
-            os.system("mv %s_temp.mp4 %s" % (output_path, output_path))
+            output = os.system("ffmpeg -y -i %s -i %s -map 0:v -map 1:a -strict -2 %s_temp.mp4" % (output_path, input_path, output_path))
+            output = os.system("mv %s_temp.mp4 %s" % (output_path, output_path))
 
     def single_inference(self, input_tensor):
         h_outputs = list()

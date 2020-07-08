@@ -13,5 +13,5 @@ ARG TORCH_CUDA_ARCH_LIST=7.0
 COPY . /workspace/mmsr
 WORKDIR /workspace/mmsr
 RUN cd ./codes/models/archs/dcn && python3 setup.py develop
-WORKDIR /workspace/mmsr/GRPC_server
-ENTRYPOINT python3 grpc_server.py
+WORKDIR /workspace/mmsr
+ENTRYPOINT python3 GRPC_server/grpc_server.py
